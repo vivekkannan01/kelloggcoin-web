@@ -1,8 +1,38 @@
 <h1>KelloggCoin Ledger</h1>
 
+<h2>Transactions</h2>
 <!-- Step 1: List all transactions, starting with the ICO -->
 
+<ol>
+  <% Transaction.all.each do |transaction| %>
+    <% from_user = User.find_by(id: transaction.from_user_id) %>
+    <% to_user = User.find_by(id: transaction.to_user_id) %>
+
+    <li>
+      <% if from_user %>
+        <%= "#{transaction.amount} KC from #{from_user.name} to #{to_user.name}" %>
+      <% else %>
+        <%= "Initial coin offering: #{transaction.amount} KC to #{to_user.name}" %>
+      <% end %>
+    </li>
+  <% end %>
+</ol>
+
+
 <!-- Step 2: Calculate and display the balances -->
+
+<hr>
+<h2>Balances</h2>
+<p>Expected balances:</p>
+
+<ol>
+  <% User.all.each do |user| %>
+    <% received = Transaction.where(to_user_id: user.id).sum(:amount) %>
+    <% sent = Transaction.where(from_user_id: user.id).sum(:amount) %>
+    <% balance = received - sent %>
+    <li>Balance for <%= user.name %>: <%= balance %> KC</li>
+  <% end %>
+</ol>
 
 <!-- 
 Expected balances:
@@ -12,3 +42,54 @@ Balance for Evan: 1164 KC
 Balance for Anthony: 1456 KC
 Balance for Krystina: 3516 KC 
 -->
+
+
+<h2>Transactions</h2>
+
+<table border="1" cellpadding="5">
+  <tr>
+    <th>Type</th>
+    <th>Amount</th>
+    <th>From</th>
+    <th>To</th>
+  </tr>
+
+  <% Transaction.all.each do |transaction| %>
+    <% from_user = User.find_by(id: transaction.from_user_id) %>
+    <% to_user = User.find_by(id: transaction.to_user_id) %>
+
+    <tr>
+      <% if from_user %>
+        <td>Transfer</td>
+        <td><%= transaction.amount %> KC</td>
+        <td><%= from_user.name %></td>
+        <td><%= to_user.name %></td>
+      <% else %>
+        <td>ICO</td>
+        <td><%= transaction.amount %> KC</td>
+        <td>Initial Coin Offering</td>
+        <td><%= to_user.name %></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+
+<hr>
+<h2>Balances</h2>
+
+<table border="1" cellpadding="5">
+  <tr>
+    <th>User</th>
+    <th>Balance (KC)</th>
+  </tr>
+
+  <% User.all.each do |user| %>
+    <% received = Transaction.where(to_user_id: user.id).sum(:amount) %>
+    <% sent = Transaction.where(from_user_id: user.id).sum(:amount) %>
+    <% balance = received - sent %>
+    <tr>
+      <td><%= user.name %></td>
+      <td><%= balance %></td>
+    </tr>
+  <% end %>
+</table>
